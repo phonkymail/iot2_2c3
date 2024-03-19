@@ -1,0 +1,132 @@
+from machine import Pin, ADC, Timer
+import utime
+import time
+import ubinascii
+import network
+import json
+from umqtt.simple import MQTTClient
+
+# MQTT Broker details
+mqtt_server = "74.234.16.173"
+mqtt_client_id = "ESP32_air"
+
+# client MQTT
+mqtt_client = MQTTClient(mqtt_client_id, mqtt_server)
+
+# pin
+flame = Pin(22, Pin.IN)
+knust = Pin(26, Pin.IN)
+water = ADC(Pin(35))
+pir = Pin(5, Pin.IN)
+bat = ADC(Pin(34))
+
+#  ADC
+bat.atten(ADC.ATTN_11DB)
+water.atten(ADC.ATTN_11DB)
+
+# sensor value
+prev_flame_value = flame.value()
+prev_knust_value = knust.value()
+prev_water_value = water.read()  
+prev_pir_value = pir.value()
+prev_bat_value = bat.read()
+
+# Pin led
+led_pin = Pin(14, Pin.OUT)
+
+def main():
+    mqtt_client.connect()
+    print(f"Connected to MQTT Broker: {mqtt_server}")
+    print("Good connection")
+
+
+
+
+# funtion falme sensor
+def read_flame(timer):
+    global prev_flame_value
+    flame_value = flame.value()
+    if flame_value != prev_flame_value:
+        print("Flame Sensor:", flame_value)
+        prev_flame_value = flame_value
+        mqtt_client.publish("espsafe/flame", json.dumps({"flame": flame_value}))
+
+flame_timer = Timer(2)
+flame_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_flame)
+
+# funtion glass sensor
+def read_knust(timer):
+    global prev_knust_value
+    knust_value = knust.value()
+    if knust_value != prev_knust_value:
+        print("Knust Sensor:", knust_value)
+        prev_knust_value = knust_value
+        mqtt_client.publish("espsafe/glass", json.dumps({"glass": knust_value}))
+
+
+knust_timer = Timer(3)
+knust_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_knust)
+
+# Funkcja do odczytu wartości czujnika PIR
+def read_pir(timer):
+    global prev_pir_value
+    pir_value = pir.value()
+    if pir_value != prev_pir_value:
+        print("PIR Sensor:", pir_value)
+        prev_pir_value = pir_value
+        mqtt_client.publish("espsafe/pir", json.dumps({"pir": pir_value}))
+
+# Inicjalizacja timera dla czujnika PIR z okresem 1 sekundy
+pir_timer = Timer(4)
+pir_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_pir)
+
+# Funkcja do odczytu wartości czujnika wody
+def read_water(timer):
+    global prev_water_value
+    water_value = water.read()
+
+    if water_value != prev_water_value:
+        if water_value == 0:
+            print("Water Sensor: 0")
+        elif water_value >0:
+            # Wysyłanie wartości wysokiej
+            print("Water Sensor: High =", water_value)
+            water_value = 0
+
+        # Aktualizacja poprzedniej wartości
+        prev_water_value = water_value
+        mqtt_client.publish("espsafe/water", json.dumps({"water": water_value}))
+
+# Inicjalizacja timera dla czujnika wody z okresem 1 sekundy
+water_timer = Timer(5)
+water_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_water)
+
+# Funkcja do odczytu napięcia baterii
+
+# Function to read battery voltage
+def read_bat(timer):
+    global prev_bat_value
+
+    sum_bat_value = 0
+    num_measurements = 50
+
+    for _ in range(num_measurements):
+        sum_bat_value += bat.read()
+
+    average_bat_value = sum_bat_value // num_measurements
+    bat_pr = (- average_bat_value + 1670) * -0.105
+       
+    if average_bat_value != prev_bat_value:
+        print("Average Battery Voltage (ADC): {:.0f}%".format(bat_pr))
+        prev_bat_value = bat_pr
+        mqtt_client.publish("espsafe/bat", json.dumps({"bat": bat_pr}))
+
+# Inicjalizacja timera dla napięcia baterii z okresem 5 sekund
+bat_timer = Timer(6)
+bat_timer.init(period=5000, mode=Timer.PERIODIC, callback=read_bat)
+
+# Główna pętla
+main()
+while True:
+    utime.sleep(0.1)
+
