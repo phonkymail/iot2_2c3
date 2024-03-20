@@ -34,6 +34,12 @@ prev_bat_value = bat.read()
 # Pin led
 led_pin = Pin(14, Pin.OUT)
 
+def toggle_led():
+    led_pin.value(1)
+    sleep(0.05)
+    led_pin.value(0)
+    sleep(5)
+
 def main():
     mqtt_client.connect()
     print(f"Connected to MQTT Broker: {mqtt_server}")
@@ -67,7 +73,7 @@ def read_knust(timer):
 knust_timer = Timer(3)
 knust_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_knust)
 
-# Funkcja do odczytu wartości czujnika PIR
+# Funktion pir sensor
 def read_pir(timer):
     global prev_pir_value
     pir_value = pir.value()
@@ -76,11 +82,10 @@ def read_pir(timer):
         prev_pir_value = pir_value
         mqtt_client.publish("espsafe/pir", json.dumps({"pir": pir_value}))
 
-# Inicjalizacja timera dla czujnika PIR z okresem 1 sekundy
 pir_timer = Timer(4)
 pir_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_pir)
 
-# Funkcja do odczytu wartości czujnika wody
+# Function of water
 def read_water(timer):
     global prev_water_value
     water_value = water.read()
@@ -89,21 +94,16 @@ def read_water(timer):
         if water_value == 0:
             print("Water Sensor: 0")
         elif water_value >0:
-            # Wysyłanie wartości wysokiej
             print("Water Sensor: High =", water_value)
             water_value = 0
 
-        # Aktualizacja poprzedniej wartości
         prev_water_value = water_value
         mqtt_client.publish("espsafe/water", json.dumps({"water": water_value}))
 
-# Inicjalizacja timera dla czujnika wody z okresem 1 sekundy
 water_timer = Timer(5)
 water_timer.init(period=1000, mode=Timer.PERIODIC, callback=read_water)
 
-# Funkcja do odczytu napięcia baterii
-
-# Function to read battery voltage
+# Function battery procent
 def read_bat(timer):
     global prev_bat_value
 
@@ -115,18 +115,22 @@ def read_bat(timer):
 
     average_bat_value = sum_bat_value // num_measurements
     bat_pr = (- average_bat_value + 1670) * -0.105
+        if bat_pr<0:
+            bat_pr=0
        
     if average_bat_value != prev_bat_value:
         print("Average Battery Voltage (ADC): {:.0f}%".format(bat_pr))
         prev_bat_value = bat_pr
         mqtt_client.publish("espsafe/bat", json.dumps({"bat": bat_pr}))
 
-# Inicjalizacja timera dla napięcia baterii z okresem 5 sekund
 bat_timer = Timer(6)
 bat_timer.init(period=5000, mode=Timer.PERIODIC, callback=read_bat)
 
-# Główna pętla
+# main
 main()
 while True:
+    toggle_led()
     utime.sleep(0.1)
+
+
 
