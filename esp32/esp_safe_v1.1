@@ -95,7 +95,7 @@ def read_water(timer):
             print("Water Sensor: 0")
         elif water_value >0:
             print("Water Sensor: High =", water_value)
-            water_value = 0
+            water_value = 1
 
         prev_water_value = water_value
         mqtt_client.publish("espsafe/water", json.dumps({"water": water_value}))
