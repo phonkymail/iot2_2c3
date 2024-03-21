@@ -1,13 +1,13 @@
 from machine import Pin, ADC, Timer
 import utime
-import time
+from time import sleep
 import ubinascii
 import network
 import json
 from umqtt.simple import MQTTClient
 
 # MQTT Broker details
-mqtt_server = "74.234.16.173"
+mqtt_server = "20.93.22.213"
 mqtt_client_id = "ESP32_air"
 
 # client MQTT
@@ -108,16 +108,19 @@ def read_bat(timer):
     global prev_bat_value
 
     sum_bat_value = 0
-    num_measurements = 50
+    num_measurements = 60
 
     for _ in range(num_measurements):
         sum_bat_value += bat.read()
 
     average_bat_value = sum_bat_value // num_measurements
     bat_pr = (- average_bat_value + 1670) * -0.105
-        if bat_pr<0:
-            bat_pr=0
-       
+    if bat_pr < 0:
+        bat_pr = 0
+    if bat_pr>100:
+        bar_=100
+    
+    
     if average_bat_value != prev_bat_value:
         print("Average Battery Voltage (ADC): {:.0f}%".format(bat_pr))
         prev_bat_value = bat_pr
