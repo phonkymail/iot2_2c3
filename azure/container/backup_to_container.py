@@ -24,25 +24,21 @@ def take_backup(src_file_name,
             if src_file_name and dst_file_name and src_dir and dst_dir: 
                 src_dir = src_dir+src_file_name 
                 dst_dir = dst_dir+dst_file_name                  
-            # When User Enter Either  
-            # 'None' or empty String ('') 
+            # When User Enter Either   'None' or empty String ('') 
             elif dst_file_name is None or not dst_file_name: 
                 dst_file_name = src_file_name 
                 dst_dir = dst_dir+dst_file_name 
                   
-            # When user Enter an empty 
-            # string with one or more spaces (' ') 
+            # When user Enter an empty string with one or more spaces (' ') 
             elif dst_file_name.isspace(): 
                 dst_file_name = src_file_name 
                 dst_dir = dst_dir+date_format+dst_file_name 
                   
-            # When user Enter an a 
-            # name for the backup copy 
+            # When user Enter an a  name for the backup copy 
             else: 
                 dst_dir = dst_dir+date_format+dst_file_name 
   
-            # Now, just copy the files 
-            # from source to destination 
+            # Now, just copy the files  from source to destination 
             shutil.copy2(src_dir, dst_dir) 
             print("Backup Successful!") 
         except FileNotFoundError: 
