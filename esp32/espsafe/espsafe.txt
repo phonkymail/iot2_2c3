@@ -1,0 +1,30 @@
+
+Programbeskrivelse:
+Programmet er designet til at overvåge forskellige sensorer ved hjælp af ESP32 mikrocontrolleren og sende data til en MQTT-server. De vigtigste funktioner i programmet inkluderer:
+
+Forbindelse til MQTT-serveren.
+Læsning af data fra sensorer: flamme, glasbrud, PIR bevægelsesdetektor, jordfugtighed og batteriniveau.
+Sendelse af de læste data til MQTT-serveren i JSON-format.
+Krav til at køre programmet:
+For at køre dette program skal du have de relevante Python-biblioteker installeret på det enhed, hvor programmet vil køre. Nedenfor er de nødvendige biblioteker samt en beskrivelse af de anvendte funktioner i programmet:
+
+Biblioteker:
+
+machine: Bibliotek til styring af ESP32 mikrocontrolleren.
+utime: Bibliotek til håndtering af tid.
+time: Python bibliotek til håndtering af tid.
+ubinascii: Bibliotek til binær datakonvertering til ASCII.
+network: Bibliotek til netværksfunktioner.
+json: Bibliotek til håndtering af JSON-dataformat.
+umqtt.simple: Bibliotek til MQTT kommunikation.
+Funktioner:
+
+Pin: Klasse til styring af mikrocontrollerens pinde.
+ADC: Klasse til styring af analog-til-digital konverter (ADC).
+Timer: Klasse til styring af timere.
+sleep: Funktion til at sætte programmet på pause i et bestemt tidsrum.
+MQTTClient: Klasse til håndtering af MQTT-klienten.
+toggle_led: Funktion til at skifte tilstanden for en LED-diode.
+read_flame, read_knust, read_pir, read_water, read_bat: Funktioner til læsning af data fra de enkelte sensorer.
+main: Hovedfunktionen i programmet, ansvarlig for at oprette forbindelse til MQTT-serveren.
+Når programmet er startet, vil mikrocontrolleren regelmæssigt læse værdier fra sensorerne og sende dem til MQTT-serveren. Derudover vil en LED-diode blinke med jævne mellemrum for at angive, at programmet kører.
