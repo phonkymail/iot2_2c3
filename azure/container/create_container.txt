@@ -1,0 +1,3 @@
+Dette Python-program bruger Azure SDK til at oprette en beholder i Azure Blob Storage.
+Det tjekker først, om beholderen allerede eksisterer, og opretter den ellers. 
+Programmet bruger azure.storage.blob-biblioteket og ContainerClient-klassen til dette formål.
