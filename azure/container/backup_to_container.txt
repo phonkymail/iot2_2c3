@@ -1,9 +1,0 @@
-Dette program er til at oprette en sikkerhedskopi af en fil fra en placering og sende den til en container i Azure Blob Storage-tjenesten.
-
-De vigtigste funktioner i bibliotekerne er:
-
-shutil.copy2(src, dst): Kopierer den angivne kildefil til den angivne destination. Det bruges til at oprette en sikkerhedskopi af filen.
-BlobServiceClient.from_connection_string(connection_string): Opretter en Azure Blob Storage-tjenesteklient ud fra en forbindelsesstreng.
-blob_client.upload_blob(data): Overfører data til en beholder i Azure Blob Storage-tjenesten.
-For at køre programmet skal du angive stien til den kildefil, du vil tage en sikkerhedskopi af, 
-navnet på den ønskede destination og destinationsmappen. Derudover skal du have installeret bibliotekerne azure-storage-blob 
